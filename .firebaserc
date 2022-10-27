@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "clinicaonline-32454"
+  },
+  "targets": {
+    "clinicaonline-32454": {
+      "hosting": {
+        "TP-Final": [
+          "clinicaonline-32454"
+        ]
+      }
+    }
+  }
+}
