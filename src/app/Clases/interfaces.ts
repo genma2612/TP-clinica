@@ -1,23 +1,24 @@
 export interface Paciente {
     nombre:string;
-    Apellido:string;
+    apellido:string;
     edad:number;
     dni:number;
     obraSocial:string;
+    numeroSocio:number;
     email:string;
-    password:string;
+    pass:string;
     imagenUno:string;
     imagenDos:string;
 }
 
 export interface Especialista {
     nombre:string;
-    Apellido:string;
+    apellido:string;
     edad:number;
     dni:number;
     especialidad:string;
     email:string;
-    password:string;
+    pass:string;
     imagenUno:string;
 }
 

@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Especialista, Paciente } from 'src/app/Clases/interfaces';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-//import { AuthService } from 'src/app/Servicios/auth.service';
+import { AuthService } from 'src/app/Servicios/auth.service';
 
 @Component({
   selector: 'app-registrar',
@@ -16,15 +16,15 @@ export class RegistrarComponent implements OnInit {
   constructor(private _Activatedroute: ActivatedRoute,
     private router: Router,
     private fb: FormBuilder,
-    //private auth: AuthService
-    ) {
+    private auth: AuthService
+  ) {
     this.tipo = this._Activatedroute.snapshot.paramMap.get("tipo");
   }
 
   ngOnInit(): void {
     this.setearValidaciones();
     this.setUserCategoryValidators();
-    if(this.tipo == "especialista"){
+    if (this.tipo == "especialista") {
       this.opcionDelMenuOPersonalizada();
     }
   }
@@ -34,15 +34,15 @@ export class RegistrarComponent implements OnInit {
       'nombre': ['', [Validators.required]],
       'apellido': ['', Validators.required],
       'edad': ['', [Validators.required, Validators.min(18), Validators.max(99)]],
-      'dni': ['', Validators.required],
-      'obraSocial': [""],
-      'numAfiliado': [""],
-      'especialidad': [""],
-      'especialidadPersonalizada': [],
+      'dni': ['', [Validators.required, Validators.min(1000000), Validators.max(99999999)]],
+      'obraSocial': ["", Validators.required],
+      'numAfiliado': ["",[Validators.required, Validators.min(1000), Validators.max(9999)]],
+      'especialidad': ["", Validators.required],
+      'especialidadPersonalizada': ["", Validators.required],
       'email': ['', [Validators.required, Validators.email]],
       'pass': ['', Validators.required],
       'passConfirm': ['', Validators.required],
-      'check': [""]
+      'check': []
     });
   }
 
@@ -52,53 +52,79 @@ export class RegistrarComponent implements OnInit {
     const numAfiliadoControl = this.formulario.get('numAfiliado');
     const especialidadControl = this.formulario.get('especialidad');
     const especialidadPersonalizadaControl = this.formulario.get('especialidadPersonalizada');
-    if (this.tipo === 'paciente') {
-      obraSocialControl?.setValidators([Validators.required]);
-      numAfiliadoControl?.setValidators([Validators.required]);
-      especialidadControl?.setValidators(null);
-      especialidadPersonalizadaControl?.setValidators(null);
+    if (this.tipo === 'paciente') { //Si es paciente, deshabilito los campos del especialista.
+      especialidadControl?.disable();
+      especialidadControl?.updateValueAndValidity();
+      especialidadPersonalizadaControl?.disable();
+      especialidadPersonalizadaControl?.updateValueAndValidity();
     }
-    if (this.tipo === 'especialista') {
-      obraSocialControl?.setValidators(null);
-      numAfiliadoControl?.setValidators(null);
-      especialidadControl?.setValidators([Validators.required]);
-      especialidadPersonalizadaControl?.setValidators([Validators.required]);
+    if (this.tipo === 'especialista') { //Si es especialista, deshabilito los campos del paciente.
+      obraSocialControl?.disable();
+      obraSocialControl?.updateValueAndValidity();
+      numAfiliadoControl?.disable();
+      numAfiliadoControl?.updateValueAndValidity();
     }
-    obraSocialControl?.updateValueAndValidity();
-    numAfiliadoControl?.updateValueAndValidity();
-    especialidadControl?.updateValueAndValidity();
-    especialidadPersonalizadaControl?.updateValueAndValidity();
   }
 
-  opcionDelMenuOPersonalizada(){
+  opcionDelMenuOPersonalizada() {
     const especialidadControl = this.formulario.get('especialidad');
     const especialidadPersonalizadaControl = this.formulario.get('especialidadPersonalizada');
-    this.formulario.get('especialidadPersonalizada')?.disable();
+    especialidadPersonalizadaControl?.disable();
     this.formulario.get('check')?.valueChanges
-         .subscribe(value => {
-            if (value) {
-               // enable the input when new value is true
-               this.formulario.get('especialidad')?.disable();
-               this.formulario.get('especialidadPersonalizada')?.enable();
-               especialidadControl?.setValidators(null);
-               especialidadPersonalizadaControl?.setValidators([Validators.required]);
-            } else {
-               // disable the input when new value is false
-               this.formulario.get('especialidad')?.enable();
-               this.formulario.get('especialidadPersonalizada')?.disable();
-               especialidadPersonalizadaControl?.setValidators(null);
-               especialidadControl?.setValidators([Validators.required]);
-            }
-            especialidadControl?.updateValueAndValidity();
-            especialidadPersonalizadaControl?.updateValueAndValidity();
-         });
+      .subscribe(value => {
+        if (value) {
+          // enable the input when new value is true
+          especialidadControl?.disable();
+          especialidadPersonalizadaControl?.enable();
+        } else {
+          // disable the input when new value is false
+          especialidadControl?.enable();
+          especialidadPersonalizadaControl?.disable();
+        }
+        especialidadControl?.updateValueAndValidity();
+        especialidadPersonalizadaControl?.updateValueAndValidity();
+      });
   }
 
-  onSubmit(f: any) {
-    console.log(f);
-    alert("Los datos ingresados son: " + f.nombre);
-    //this.router.navigate(['welcome']);
-      //this.auth.SignUp(f, this.tipo);
+  onPasswordChange() {
+    if (this.confirm_password.value == this.password.value) {
+      this.confirm_password.setErrors(null);
+    } else {
+      this.confirm_password.setErrors({ mismatch: true });
     }
+  }
+
+  // getting the form control elements
+  get password(): AbstractControl {
+    return this.formulario.controls['pass'];
+  }
+
+  get confirm_password(): AbstractControl {
+    return this.formulario.controls['passConfirm'];
+  }
+
+
+
+
+
+  onSubmit(f: any) {
+    this.formulario.get('check')?.disable();
+    this.crearUsuario(f, this.tipo!);
+    //this.router.navigate(['welcome']);
+  }
+
+  crearUsuario(form: any, tipo: string) {
+    console.log(form);
+    if(tipo == 'especialista'){
+      if(form.especialidad == undefined){
+        form.especialidad = form.especialidadPersonalizada;
+        delete form['especialidadPersonalizada']
+      }
+    }
+    delete form['check'];
+    let teset:Especialista = form;
+    console.log(teset);
+    //this.auth.SignUp(usuario, tipo)
+  }
 
 }

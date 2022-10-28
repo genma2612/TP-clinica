@@ -23,6 +23,7 @@
             <div class="col">
                 <input type="number" formControlName="dni" class="form-control" placeholder="DNI sin puntos ni coma">
                 <small class="invalid" *ngIf="formulario.controls['dni'].errors?.['required'] && formulario.controls['dni'].touched">Ingrese un DNI correcto sin puntos ni comas</small>
+                <small class="invalid" *ngIf="formulario.controls['dni'].errors?.['min'] || formulario.controls['dni'].errors?.['max'] && formulario.controls['dni'].touched">El DNI debe ser > 1000000 y < 99999999</small>
             </div>
         </div>
 
@@ -35,7 +36,8 @@
             </div>
             <div class="col">
                 <input type="number" formControlName="numAfiliado" class="form-control" placeholder="Número de afiliado">
-                <small class="invalid" *ngIf="formulario.controls['numAfiliado'].errors?.['required'] && formulario.controls['numAfiliado'].touched">Ingrese su numero de afiliado (de 1000 a 9999)</small>
+                <small class="invalid" *ngIf="formulario.controls['numAfiliado'].errors?.['required'] && formulario.controls['numAfiliado'].touched">Ingrese su numero de afiliado</small>
+                <small class="invalid" *ngIf="formulario.controls['numAfiliado'].errors?.['min'] || formulario.controls['numAfiliado'].errors?.['max'] && formulario.controls['numAfiliado'].touched">Debe estar en el rango de 1000 a 9999</small>
             </div>
             <p></p>
         </div>
@@ -71,12 +73,13 @@
 
         <div class="row">
             <div class="col">
-                <input type="password" formControlName="pass" class="form-control" placeholder="Contraseña">
-                <small class="invalid" *ngIf="formulario.controls['pass'].errors?.['required'] && formulario.controls['pass'].touched">Ingrese su nombre</small>
+                <input type="password" formControlName="pass" class="form-control" placeholder="Contraseña"  (change)="onPasswordChange()">
+                <small class="invalid" *ngIf="formulario.controls['pass'].errors?.['required'] && formulario.controls['pass'].touched">Ingrese su contraseña</small>
+                <small class="invalid" *ngIf="confirm_password.hasError('mismatch') && formulario.controls['pass'].touched"><p></p> Las contraseñas no coinciden.</small>
             </div>
             <div class="col">
-                <input type="password" formControlName="passConfirm" class="form-control" placeholder="Repita su contraseña">
-                <small class="invalid" *ngIf="formulario.controls['passConfirm'].errors?.['required'] && formulario.controls['passConfirm'].touched">Ingrese su nombre</small>
+                <input type="password" formControlName="passConfirm" class="form-control" placeholder="Repita su contraseña"  (change)="onPasswordChange()">
+                <small class="invalid" *ngIf="formulario.controls['passConfirm'].errors?.['required'] && formulario.controls['passConfirm'].touched">Repita su contraseña</small>
             </div>
         </div>
         <p></p>
