@@ -54,7 +54,7 @@
             </div>
             <div class="col">
                 <div class="form-check">
-                <input class="form-check-input" formControlName="check" type="checkbox">
+                <input class="form-check-input" (change)="agregarOpcionPersonal()" type="checkbox">
                 <input type="text" formControlName="especialidadPersonalizada" class="form-control"  placeholder="Otra opción">
                 <small class="invalid" *ngIf="formulario.controls['especialidadPersonalizada'].errors?.['required'] && formulario.controls['especialidadPersonalizada'].touched">Ingrese su especialidad</small>
                 </div>

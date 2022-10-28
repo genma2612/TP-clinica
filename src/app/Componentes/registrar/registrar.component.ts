@@ -24,9 +24,6 @@ export class RegistrarComponent implements OnInit {
   ngOnInit(): void {
     this.setearValidaciones();
     this.setUserCategoryValidators();
-    if (this.tipo == "especialista") {
-      this.opcionDelMenuOPersonalizada();
-    }
   }
 
   setearValidaciones() {
@@ -36,13 +33,12 @@ export class RegistrarComponent implements OnInit {
       'edad': ['', [Validators.required, Validators.min(18), Validators.max(99)]],
       'dni': ['', [Validators.required, Validators.min(1000000), Validators.max(99999999)]],
       'obraSocial': ["", Validators.required],
-      'numAfiliado': ["",[Validators.required, Validators.min(1000), Validators.max(9999)]],
+      'numAfiliado': ["", [Validators.required, Validators.min(1000), Validators.max(9999)]],
       'especialidad': ["", Validators.required],
       'especialidadPersonalizada': ["", Validators.required],
       'email': ['', [Validators.required, Validators.email]],
       'pass': ['', Validators.required],
-      'passConfirm': ['', Validators.required],
-      'check': []
+      'passConfirm': ['', Validators.required]
     });
   }
 
@@ -52,11 +48,11 @@ export class RegistrarComponent implements OnInit {
     const numAfiliadoControl = this.formulario.get('numAfiliado');
     const especialidadControl = this.formulario.get('especialidad');
     const especialidadPersonalizadaControl = this.formulario.get('especialidadPersonalizada');
+    especialidadPersonalizadaControl?.disable(); // Siempre la deshabilito por defecto, sea paciente o especialista
+    especialidadPersonalizadaControl?.updateValueAndValidity();
     if (this.tipo === 'paciente') { //Si es paciente, deshabilito los campos del especialista.
       especialidadControl?.disable();
       especialidadControl?.updateValueAndValidity();
-      especialidadPersonalizadaControl?.disable();
-      especialidadPersonalizadaControl?.updateValueAndValidity();
     }
     if (this.tipo === 'especialista') { //Si es especialista, deshabilito los campos del paciente.
       obraSocialControl?.disable();
@@ -66,6 +62,22 @@ export class RegistrarComponent implements OnInit {
     }
   }
 
+  agregarOpcionPersonal() {
+    const especialidadControl = this.formulario.get('especialidad');
+    const especialidadPersonalizadaControl = this.formulario.get('especialidadPersonalizada');
+    if (especialidadControl?.enabled) {
+      especialidadControl?.disable()
+      especialidadPersonalizadaControl?.enable();
+    }
+    else {
+      especialidadControl?.enable();
+      especialidadPersonalizadaControl?.disable();
+    }
+    especialidadControl?.updateValueAndValidity();
+    especialidadPersonalizadaControl?.updateValueAndValidity();
+  }
+
+  /* Opcion de arriba no utiliza observable
   opcionDelMenuOPersonalizada() {
     const especialidadControl = this.formulario.get('especialidad');
     const especialidadPersonalizadaControl = this.formulario.get('especialidadPersonalizada');
@@ -84,7 +96,7 @@ export class RegistrarComponent implements OnInit {
         especialidadControl?.updateValueAndValidity();
         especialidadPersonalizadaControl?.updateValueAndValidity();
       });
-  }
+  }*/
 
   onPasswordChange() {
     if (this.confirm_password.value == this.password.value) {
@@ -108,23 +120,22 @@ export class RegistrarComponent implements OnInit {
 
 
   onSubmit(f: any) {
-    this.formulario.get('check')?.disable();
     this.crearUsuario(f, this.tipo!);
     //this.router.navigate(['welcome']);
   }
 
   crearUsuario(form: any, tipo: string) {
     console.log(form);
-    if(tipo == 'especialista'){
-      if(form.especialidad == undefined){
+    if (tipo == 'especialista') {
+      if (form.especialidad == undefined) {
         form.especialidad = form.especialidadPersonalizada;
         delete form['especialidadPersonalizada']
       }
     }
-    delete form['check'];
-    let teset:Especialista = form;
-    console.log(teset);
-    //this.auth.SignUp(usuario, tipo)
+    delete form['passConfirm'];
+    //let teset: Especialista = form; // Tipificar objeto segun interfaces
+    this.auth.SignUp(form, tipo)
+
   }
 
 }

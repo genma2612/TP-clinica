@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/compat/firestore';
 import { Router } from '@angular/router';
+import { FirebaseError } from '@angular/fire/app';
 
 @Injectable({
   providedIn: 'root'
@@ -28,19 +29,17 @@ export class AuthService {
   }
 
   // Sign up with email/password
-    SignUp(email:string, pass:string) {
-        console.log("En el servicio");
-        console.log("email: " + email + " pass: " + pass);
+    SignUp(objeto:any, tipo:string) {
     return this.afAuth
-      .createUserWithEmailAndPassword(email, pass)
+      .createUserWithEmailAndPassword(objeto.email, objeto.pass)
       .then((result) => {
         /* Call the SendVerificaitonMail() function when new user sign 
         up and returns promise */
         //this.SendVerificationMail(); Sin verificación de e-mail
-        //this.SetUserData(result.user, f, tipo);
+        this.SetUserData(result.user, objeto, tipo);
       })
       .catch((error) => {
-        //throw new FirebaseError(error.code, error.message);
+        throw new FirebaseError(error.code, error.message);
       });
   }
 
@@ -75,9 +74,9 @@ export class AuthService {
       `${tipo}/${user.uid}`
     );
     //let usuario:any = JSON.parse(localStorage.getItem('user')!);
-    let formObj = f.getRawValue();
-    let objeto = JSON.stringify(formObj)
-    return userRef.set(objeto, {
+    //let formObj = f.getRawValue();
+    //let objeto = JSON.stringify(f)
+    return userRef.set(f, {
       merge: true,
     });
   }
